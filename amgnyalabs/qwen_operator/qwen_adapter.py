@@ -19,7 +19,7 @@ GATEWAY_DIR = Path(__file__).resolve().parents[1] / "operator_gateway"
 sys.path.insert(0, str(GATEWAY_DIR))
 from gateway import PROTOCOL, ReadOnlyGateway
 
-ALLOWED_TOOLS = {"inspect_project", "inspect_asset", "search_assets"}
+ALLOWED_TOOLS = {"inspect_project", "inspect_unity_project", "inspect_asset", "search_assets"}
 MAX_TASK_CHARS = 4000
 MAX_MODEL_OUTPUT_CHARS = 20000
 
@@ -31,13 +31,13 @@ class AdapterError(Exception):
 def build_request_prompt(task: str, request_id: str) -> str:
     return (
         "You are a read-only project inspection planner. Choose exactly one tool "
-        "from inspect_project, inspect_asset, search_assets. Never propose shell "
+        "from inspect_project, inspect_unity_project, inspect_asset, search_assets. Never propose shell "
         "commands, code execution, writes, conversions, or network actions. "
         "Return exactly one JSON object and no markdown, using this schema: "
         '{"protocol":"amgnyalabs.operator.v0","request_id":"'
         + request_id
         + '","tool":"inspect_project","arguments":{"path":".","max_entries":100},"permission":"read"}. '
-        "Use only arguments valid for the selected tool. inspect_project accepts "
+        "Use only arguments valid for the selected tool. inspect_unity_project accepts path and max_files and is preferred for Unity projects; inspect_project accepts "
         "path and max_entries; inspect_asset accepts only path; search_assets "
         "accepts query, path, extensions, limit. If the task cannot be fulfilled "
         "with these tools, return an inspect_project request for path '.'.\n"
