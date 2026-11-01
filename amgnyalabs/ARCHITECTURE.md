@@ -1,6 +1,8 @@
 # Architecture
 
-## 1. Layers
+## 1. Product definition and layers
+
+This is a **Godot + Unity compatibility engine**, not a replacement for Godot and not a reimplementation of the Unity runtime. Godot is the main engine. The AmgNya Unity compatibility layer makes useful Unity project data, structures, references, and supported behaviors importable or mappable into Godot. The target is to open a Unity project, extract what can be understood, convert supported parts, and use the resulting resources/scenes in the Godot runtime. Compatibility is incremental and explicitly reported; unsupported pieces are preserved/reported rather than silently discarded.
 
 ```text
 Local Qwen (planner / operator brain)
@@ -18,11 +20,14 @@ Godot 4.8 baseline + AmgNya project modules
 Android APK (Vulkan-only runtime / preview / play-test)
 ```
 
-### Godot core
-Godot supplies scene/runtime, rendering, resources, platform support, and the Android export/build foundation. Keep upstream changes small and isolated.
+### Godot main engine
+Godot supplies the core runtime: scene tree, rendering, resources, physics, platform support, and Android export/build foundation. It remains the main engine and execution environment.
 
-### AmgNya project layer
-Project-specific adapters, importers, automation tools, and compatibility code live under `amgnyalabs/` first. Promote code into Godot core only when there is a concrete technical reason and a reviewable patch.
+### Unity compatibility integration
+The Unity side is an input/compatibility ecosystem, not a second runtime. Importers and adapters read Unity project structure, metadata, serialized assets, scenes, prefabs, resources, and supported API patterns; they map or convert those into Godot-native resources and scenes. Unity-specific concepts should remain represented in source metadata/manifests when a direct Godot equivalent does not exist.
+
+### AmgNya integration and operator layer
+Project-specific adapters, importers, conversion pipelines, compatibility mappings, and automation tools live under `amgnyalabs/` first. Promote code into Godot core only when there is a concrete technical reason and a reviewable patch.
 
 ### Operator gateway
 Qwen must not receive unrestricted shell or filesystem access. It emits structured tool requests. The gateway validates:
@@ -65,9 +70,9 @@ The first tool interface should be small and deterministic:
 
 Every request and result should be logged with tool name, arguments, status, and output paths. Do not implement arbitrary command execution as a general-purpose tool.
 
-## 4. Best-effort Unity compatibility
+## 4. Godot + Unity compatibility integration
 
-Goal: accept, inspect, preserve, and convert as much useful Unity project information as can be handled safely. Full Unity runtime or binary compatibility is not promised. Partial extraction is still useful: retain every successfully decoded field/resource, record its source and confidence, and report unsupported portions instead of discarding the whole asset.
+Goal: make Godot the main runtime while accepting, inspecting, preserving, mapping, and converting as much useful Unity project information and supported behavior as can be handled safely. Full Unity runtime or binary compatibility is not promised. Partial extraction is still useful: retain every successfully decoded field/resource, record its source and confidence, and report unsupported portions instead of discarding the whole asset.
 
 ### Compatibility stages
 
