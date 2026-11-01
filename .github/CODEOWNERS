@@ -523,3 +523,6 @@
 
 /thirdparty/                                  @godotengine/buildsystem
 /thirdparty/jolt_physics/                     @godotengine/buildsystem @godotengine/jolt-physics
+
+# AmgNyaLabs downstream project
+/amgnyalabs/                                  @devmyatmin
