@@ -80,6 +80,21 @@ class UnityBinaryImporterTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "outside the original source directory"):
                 import_unity_file(self.source, self.source_dir / "generated")
 
+
+    def test_existing_generated_file_is_not_overwritten(self):
+        destination = self.output / "sharedassets0.assets"
+        destination.mkdir(parents=True)
+        existing = destination / "1_Ocean.png"
+        existing.write_bytes(b"keep-this")
+        objects = [
+            FakeObject(1, "Texture2D", "Ocean", FakeParsed(m_Name="Ocean", image=FakeImage())),
+        ]
+        fake_unitypy = types.SimpleNamespace(load=lambda path: types.SimpleNamespace(objects=objects))
+        with patch.dict(sys.modules, {"UnityPy": fake_unitypy}):
+            report = import_unity_file(self.source, self.output)
+        self.assertEqual(report["failed_objects"], 1)
+        self.assertEqual(existing.read_bytes(), b"keep-this")
+
     def test_rejects_invalid_object_limit(self):
         with self.assertRaisesRegex(ValueError, "max_objects"):
             import_unity_file(self.source, self.output, 0)
