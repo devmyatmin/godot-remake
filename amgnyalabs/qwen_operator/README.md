@@ -1,5 +1,7 @@
 # Local Qwen Operator Adapter
 
+The primary project target is **Stranded Deep**. Use the read-only Unity inspector against its project/data copy and its recorded inventory before proposing import/conversion work. Do not assume all DLLs or assets are understood merely because they are inventoried.
+
 This adapter connects a local `llama-cli` process to the read-only gateway. It does not start a model server and does not execute commands proposed by Qwen.
 
 ## Requirements
