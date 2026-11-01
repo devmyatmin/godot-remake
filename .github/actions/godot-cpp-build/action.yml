@@ -29,6 +29,37 @@ runs:
         ref: ${{ inputs.godot-cpp-branch }}
         path: godot-cpp
 
+    # godot-cpp 4.5 does not include the upstream ARCOM TEMPFILE workaround.
+    # Apply it only to Linux, where large generated binding archives can exceed ARG_MAX.
+    - name: Enable SCons archive response files (Linux only)
+      if: runner.os == 'Linux'
+      shell: sh
+      run: |
+        python3 - <<'PY'
+        from pathlib import Path
+
+        path = Path("godot-cpp/SConstruct")
+        source = path.read_text()
+        needle = "cpp_tool.generate(env)\\nlibrary = env.GodotCPP()"
+        replacement = """cpp_tool.generate(env)
+
+        # Keep large static archive commands below the operating-system argument limit.
+        if env["platform"] == "linux" and "ARCOM_ORIG" not in env:
+            env["ARCOM_ORIG"] = env["ARCOM"]
+            env["ARCOM"] = "\\u0024{TEMPFILE('$ARCOM_ORIG', '$ARCOMSTR')}"
+            env["TEMPFILESUFFIX"] = ".rsp"
+
+        library = env.GodotCPP()"""
+        if needle not in source:
+            if "ARCOM_ORIG" in source and "TEMPFILE" in source:
+                print("Archive response-file workaround already present.")
+            else:
+                raise SystemExit("Could not find expected godot-cpp 4.5 SConstruct insertion point.")
+        else:
+            path.write_text(source.replace(needle, replacement, 1))
+            print("Enabled Linux SCons archive response files.")
+        PY
+
     - name: Extract API
       shell: sh
       run: ${{ inputs.bin }} --headless --dump-gdextension-interface --dump-extension-api
