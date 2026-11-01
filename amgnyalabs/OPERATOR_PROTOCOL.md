@@ -53,6 +53,7 @@ The gateway, not Qwen, decides whether a permission is granted. A request cannot
 
 Initially implement only:
 - `inspect_project`
+- `inspect_unity_project`
 - `inspect_asset`
 - `search_assets`
 
