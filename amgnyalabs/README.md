@@ -2,6 +2,10 @@
 
 This project combines **Godot as the main engine** with a **Unity compatibility/import layer**. Godot remains the runtime and rendering foundation; Unity project structures, data, assets, scenes, prefabs, references, and supported behaviors are inspected and progressively mapped or converted into Godot-usable resources. This is not a Unity runtime reimplementation. Partial extraction is valuable and must be retained/reported when full conversion is not possible.
 
+## Primary target: Stranded Deep
+
+Stranded Deep is the target game for this engine project. Godot is the main runtime; the Unity compatibility layer exists to inspect, extract, convert, and map Stranded Deep's Unity data into Godot resources/scenes. The current recorded inventory is 133 OpenScore groups, 5 DLL files, and 3,270 asset entries (1,958 PNG, 694 Prefab, 588 Material). These are scan observations, not decoded/imported completion counts. See [the Stranded Deep target profile](targets/stranded_deep/README.md) for known areas, priorities, and verified boundaries.
+
 ## Baseline
 
 - Upstream repository: https://github.com/godotengine/godot
