@@ -7,11 +7,13 @@ on:
     paths:
       - "amgnyalabs/operator_gateway/**"
       - "amgnyalabs/qwen_operator/**"
+      - "amgnyalabs/unity_compat/**"
       - ".github/workflows/amgnyalabs-operator-tests.yml"
   pull_request:
     paths:
       - "amgnyalabs/operator_gateway/**"
       - "amgnyalabs/qwen_operator/**"
+      - "amgnyalabs/unity_compat/**"
       - ".github/workflows/amgnyalabs-operator-tests.yml"
 
 permissions:
