@@ -2,7 +2,7 @@
 
 ## 1. Product definition and layers
 
-This is a **Godot + Unity compatibility engine**, not a replacement for Godot and not a reimplementation of the Unity runtime. Godot is the main engine. The AmgNya Unity compatibility layer makes useful Unity project data, structures, references, and supported behaviors importable or mappable into Godot. The target is to open a Unity project, extract what can be understood, convert supported parts, and use the resulting resources/scenes in the Godot runtime. Compatibility is incremental and explicitly reported; unsupported pieces are preserved/reported rather than silently discarded.
+This is a **Stranded Deep-focused Godot + Unity compatibility engine**, not a replacement for Godot and not a reimplementation of the Unity runtime. Stranded Deep is the primary target and acceptance project; compatibility work should be prioritized against its actual Unity data, scenes, assets, and gameplay systems rather than treated as a generic Unity importer exercise. Godot is the main engine. The AmgNya Unity compatibility layer makes useful Unity project data, structures, references, and supported behaviors importable or mappable into Godot. The target is to open a Unity project, extract what can be understood, convert supported parts, and use the resulting resources/scenes in the Godot runtime. Compatibility is incremental and explicitly reported; unsupported pieces are preserved/reported rather than silently discarded.
 
 ```text
 Local Qwen (planner / operator brain)
