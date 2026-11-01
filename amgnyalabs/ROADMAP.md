@@ -23,6 +23,8 @@
 - [x] Inventory .meta GUIDs and extract bounded text-YAML object IDs / PPtr references (partial parser; not full YAML conversion).
 - [x] Expose an initial per-feature Unity compatibility support matrix.
 - [ ] Create a persistent Stranded Deep Unity-to-Godot extraction manifest with incremental re-import support.
+- [x] Add a pinned UnityPy-based first-stage extractor for Texture2D/Sprite, Mesh, AudioClip, Font, and TextAsset with per-object partial-failure reporting.
+- [ ] Validate the extractor against representative original Stranded Deep serialized files and their .resS/.resource sidecars; record Unity version/parser coverage.
 - [x] Add metadata-only inspection for serialized assets and bundles before conversion.
 - [ ] Resolve GUID references across complete project scans and persist source-to-Godot resource mappings.
 - [ ] Add texture and audio conversion fixtures, beginning with representative Stranded Deep PNG/audio resources.
