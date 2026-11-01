@@ -1,4 +1,4 @@
-"""Bounded, read-only discovery for Unity project layouts and text metadata."""
+"""Bounded, read-only discovery and partial text-metadata extraction for Unity projects."""
 from __future__ import annotations
 
 import json
@@ -11,8 +11,12 @@ from typing import Any
 MAX_FILES = 5000
 MAX_TEXT_BYTES = 128 * 1024
 MAX_BINARY_LIST = 100
-GUID_RE = re.compile(rb"(?m)^guid:\s*([0-9a-fA-F]{32})\s*$")
-YAML_OBJECT_RE = re.compile(rb"(?m)^--- !u!(\d+) ")
+MAX_EXTRACTED_REFERENCES = 1000
+GUID_RE = re.compile(rb"(?m)^guid:\\s*([0-9a-fA-F]{32})\\s*$")
+YAML_OBJECT_RE = re.compile(rb"(?m)^--- !u!(\\d+) &(-?\\d+)")
+YAML_PPTR_RE = re.compile(
+    rb"\\{fileID:\\s*(-?\\d+)(?:,\\s*guid:\\s*([0-9a-fA-F]{32}))?(?:,\\s*type:\\s*\\d+)?\\}"
+)
 UNITY_BINARY_EXTENSIONS = {".assets", ".bundle", ".unity3d", ".ress", ".resource", ".resS"}
 
 
@@ -22,7 +26,7 @@ def _read_limited(path: Path, limit: int = MAX_TEXT_BYTES) -> bytes:
 
 
 def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str, Any]:
-    """Inspect project markers and bounded metadata; never modifies source files."""
+    """Inspect Unity markers, GUIDs, YAML object IDs and references without modifying source."""
     if not isinstance(max_files, int) or isinstance(max_files, bool) or not 1 <= max_files <= MAX_FILES:
         raise ValueError(f"max_files must be between 1 and {MAX_FILES}")
     root = project_root.resolve(strict=True)
@@ -32,7 +36,8 @@ def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str
     markers = []
     for marker in (
         "Assets", "Packages", "ProjectSettings", "ProjectSettings/ProjectVersion.txt",
-        "Packages/manifest.json", "ProjectSettings/ProjectSettings.asset",
+        "Packages/manifest.json", "Packages/packages-lock.json",
+        "ProjectSettings/ProjectSettings.asset",
     ):
         if (root / marker).exists():
             markers.append(marker)
@@ -40,7 +45,7 @@ def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str
     version = None
     version_file = root / "ProjectSettings" / "ProjectVersion.txt"
     if version_file.is_file() and not version_file.is_symlink():
-        match = re.search(r"(?m)^m_EditorVersion:\s*(.+?)\s*$", _read_limited(version_file).decode("utf-8", "replace"))
+        match = re.search(r"(?m)^m_EditorVersion:\\s*(.+?)\\s*$", _read_limited(version_file).decode("utf-8", "replace"))
         if match:
             version = match.group(1)
 
@@ -60,8 +65,11 @@ def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str
             packages = {}
 
     extension_counts: Counter[str] = Counter()
-    guid_counts: Counter[str] = Counter()
-    yaml_object_counts: Counter[str] = Counter()
+    guid_to_asset: dict[str, str] = {}
+    duplicate_guid_counts: Counter[str] = Counter()
+    yaml_class_counts: Counter[str] = Counter()
+    yaml_object_ids: list[dict[str, Any]] = []
+    yaml_references: list[dict[str, Any]] = []
     binary_assets: list[dict[str, Any]] = []
     scanned = 0
     text_files_sampled = 0
@@ -86,16 +94,43 @@ def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str
                     extension_counts[ext] += 1
                     if filename.endswith(".meta"):
                         try:
-                            for guid in GUID_RE.findall(_read_limited(file_path)):
-                                guid_counts[guid.decode("ascii").lower()] += 1
+                            raw = _read_limited(file_path)
+                            matches = GUID_RE.findall(raw)
+                            if matches:
+                                guid = matches[0].decode("ascii").lower()
+                                duplicate_guid_counts[guid] += 1
+                                asset_path = file_path.with_suffix("").relative_to(root).as_posix()
+                                guid_to_asset.setdefault(guid, asset_path)
                             text_files_sampled += 1
                         except OSError:
                             pass
                     elif ext in {".unity", ".prefab", ".asset"}:
                         try:
                             raw = _read_limited(file_path)
-                            for class_id in YAML_OBJECT_RE.findall(raw):
-                                yaml_object_counts[class_id.decode("ascii")] += 1
+                            for class_id, object_id in YAML_OBJECT_RE.findall(raw):
+                                class_text = class_id.decode("ascii")
+                                yaml_class_counts[class_text] += 1
+                                if len(yaml_object_ids) < MAX_EXTRACTED_REFERENCES:
+                                    yaml_object_ids.append({
+                                        "source": file_path.relative_to(root).as_posix(),
+                                        "class_id": int(class_text),
+                                        "file_id": int(object_id.decode("ascii")),
+                                    })
+                            for file_id, guid in YAML_PPTR_RE.findall(raw):
+                                if len(yaml_references) >= MAX_EXTRACTED_REFERENCES:
+                                    break
+                                guid_text = guid.decode("ascii").lower() if guid else None
+                                yaml_references.append({
+                                    "source": file_path.relative_to(root).as_posix(),
+                                    "file_id": int(file_id.decode("ascii")),
+                                    "guid": guid_text,
+                                    "resolved_asset": guid_to_asset.get(guid_text) if guid_text else None,
+                                    "resolution": (
+                                        "resolved" if guid_text in guid_to_asset else
+                                        "unresolved_external_or_not_yet_indexed" if guid_text else
+                                        "local_file_id_reference"
+                                    ),
+                                })
                             text_files_sampled += 1
                         except OSError:
                             pass
@@ -114,7 +149,7 @@ def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str
             if truncated:
                 break
 
-    duplicate_guids = sorted(guid for guid, count in guid_counts.items() if count > 1)
+    duplicate_guids = sorted(guid for guid, count in duplicate_guid_counts.items() if count > 1)
     return {
         "is_unity_project": bool({"Assets", "ProjectSettings", "Packages"} & set(markers)),
         "markers_found": markers,
@@ -125,14 +160,25 @@ def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str
         "assets_scan_truncated": truncated,
         "extension_counts": dict(sorted(extension_counts.items())),
         "text_metadata_files_sampled": text_files_sampled,
-        "unique_meta_guid_count": len(guid_counts),
+        "unique_meta_guid_count": len(guid_to_asset),
+        "guid_to_asset": dict(sorted(guid_to_asset.items())),
         "duplicate_meta_guids": duplicate_guids[:100],
-        "yaml_object_class_id_counts": dict(sorted(yaml_object_counts.items())),
+        "yaml_object_class_id_counts": dict(sorted(yaml_class_counts.items())),
+        "yaml_objects": yaml_object_ids,
+        "yaml_references": yaml_references,
         "binary_unity_assets": binary_assets,
-        "support_level": "partial_metadata_inspection",
+        "support_matrix": {
+            "project_layout_and_packages": "supported",
+            "meta_guid_inventory": "supported",
+            "text_yaml_object_ids_and_pptr_references": "partial",
+            "binary_serialized_assets_and_assetbundles": "metadata-only",
+            "unity_runtime_and_assembly_execution": "unsupported",
+        },
+        "support_level": "partial_metadata_and_reference_inspection",
         "limitations": [
-            "Unity binary serialized objects and AssetBundles are listed but not decoded by this first inspector.",
-            "Text YAML parsing is limited to object class IDs; complete object/reference conversion is a later importer stage.",
+            "Text YAML is inspected with bounded structural patterns; this is not a complete Unity YAML parser.",
+            "GUID references are resolved only against .meta files discovered under Assets during this scan.",
+            "Binary serialized objects and AssetBundles are listed but not decoded by this inspector.",
             "Only bounded samples of .meta, .unity, .prefab, and .asset text are inspected.",
         ],
     }
