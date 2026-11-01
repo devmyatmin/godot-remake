@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
-"""Chunk GNU ar inputs to stay below the Linux exec argument-size limit.
-
-SCons normally passes every generated godot-cpp object to one ar invocation.
-Large editor APIs can exceed ARG_MAX. GNU ar can safely add objects to the
-same archive in multiple invocations, so split only the object arguments.
-"""
+"""PATH shim for GNU ar that chunks large object lists to avoid ARG_MAX."""
 import os
 import shutil
 import subprocess
 import sys
 
-args = sys.argv[1:]
-real_ar = shutil.which("ar")
+wrapper_dir = os.path.realpath(os.path.dirname(__file__))
+search_path = os.pathsep.join(
+    entry for entry in os.environ.get("PATH", "").split(os.pathsep)
+    if os.path.realpath(entry or ".") != wrapper_dir
+)
+real_ar = shutil.which("ar", path=search_path)
 if not real_ar:
-    raise SystemExit("ar_chunker: could not locate the system 'ar' executable")
+    raise SystemExit("ar_chunker: could not locate the real system ar")
 
-# GNU ar invocation from SCons: ARFLAGS, archive target, then object files.
+args = sys.argv[1:]
 if len(args) < 3:
     os.execv(real_ar, [real_ar, *args])
 
+# SCons invokes ar as: operation/flags, archive path, object files...
 prefix = args[:2]
 objects = args[2:]
 limit = 48 * 1024
