@@ -40,13 +40,13 @@ runs:
 
         path = Path("godot-cpp/SConstruct")
         source = path.read_text()
-        needle = "cpp_tool.generate(env)\\nlibrary = env.GodotCPP()"
+        needle = "cpp_tool.generate(env)\nlibrary = env.GodotCPP()"
         replacement = """cpp_tool.generate(env)
 
         # Keep large static archive commands below the operating-system argument limit.
         if env["platform"] == "linux" and "ARCOM_ORIG" not in env:
             env["ARCOM_ORIG"] = env["ARCOM"]
-            env["ARCOM"] = "\\u0024{TEMPFILE('$ARCOM_ORIG', '$ARCOMSTR')}"
+            env["ARCOM"] = "$" + "{TEMPFILE('$ARCOM_ORIG', '$ARCOMSTR')}"
             env["TEMPFILESUFFIX"] = ".rsp"
 
         library = env.GodotCPP()"""
