@@ -6,6 +6,7 @@ one unsupported or malformed object must not discard other successfully exported
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import re
 import sys
@@ -53,13 +54,10 @@ def _export_object(obj: Any, object_type: str, destination: Path) -> tuple[list[
         image = getattr(parsed, "image", None)
         if image is None:
             raise ValueError("image decoder returned no image")
+        buffer = io.BytesIO()
+        image.save(buffer, format="PNG")
         path = destination / f"{base}.png"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        image.save(path, format="PNG")
-        size = path.stat().st_size
-        if size > MAX_OUTPUT_BYTES_PER_OBJECT:
-            path.unlink(missing_ok=True)
-            raise ValueError(f"object output exceeds {MAX_OUTPUT_BYTES_PER_OBJECT} bytes")
+        size = _write_bytes(path, buffer.getvalue())
         return [path.as_posix()], size, "exported_png"
 
     if object_type == "Mesh":
@@ -136,6 +134,8 @@ def import_unity_file(source_file: Path, output_root: Path, max_objects: int = 3
     total_bytes = 0
     truncated = False
     source_output = output / _safe_name(source.name, "unity_source")
+    if source_output.is_symlink():
+        raise ValueError("per-source output directory cannot be a symlink")
     source_output.mkdir(parents=True, exist_ok=True)
 
     for obj in env.objects:
