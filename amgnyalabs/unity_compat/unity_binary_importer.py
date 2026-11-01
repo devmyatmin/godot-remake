@@ -61,6 +61,15 @@ def _json_safe(value: Any, depth: int = 0) -> Any:
     return {"$unsupported_type": type(value).__name__, "repr": repr(value)[:500]}
 
 def _export_object(obj: Any, object_type: str, destination: Path) -> tuple[list[str], int, str]:
+    if object_type == "MonoBehaviour":
+        name = _safe_name(_object_name(obj), "unnamed")
+        base = f"{int(getattr(obj, 'path_id', 0))}_{name}"
+        tree = obj.parse_as_dict()
+        payload = json.dumps(_json_safe(tree), ensure_ascii=False, indent=2)
+        path = destination / f"{base}.json"
+        size = _write_bytes(path, payload)
+        return [path.as_posix()], size, "exported_typetree_json"
+
     parsed = obj.parse_as_object()
     name = _safe_name(getattr(parsed, "m_Name", None) or getattr(parsed, "name", None), "unnamed")
     base = f"{int(getattr(obj, 'path_id', 0))}_{name}"
@@ -102,13 +111,6 @@ def _export_object(obj: Any, object_type: str, destination: Path) -> tuple[list[
         path = destination / f"{base}{extension}"
         size = _write_bytes(path, font_data)
         return [path.as_posix()], size, "exported_font"
-
-    if object_type == "MonoBehaviour":
-        tree = obj.parse_as_dict()
-        payload = json.dumps(_json_safe(tree), ensure_ascii=False, indent=2)
-        path = destination / f"{base}.json"
-        size = _write_bytes(path, payload)
-        return [path.as_posix()], size, "exported_typetree_json"
 
     if object_type == "TextAsset":
         text_data = getattr(parsed, "m_Script", None)
