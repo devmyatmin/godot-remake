@@ -109,6 +109,8 @@ def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str
                             })
                         except OSError:
                             pass
+                except OSError:
+                    continue
             if truncated:
                 break
 
