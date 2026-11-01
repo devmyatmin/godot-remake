@@ -57,7 +57,7 @@ Initially expose only these read-only tools:
 - `inspect_asset`
 - `search_assets`
 
-All three are read-only. Do not expose a generic `shell`, `exec`, `run_command`, or unrestricted file-write tool.
+All four are read-only. The standalone Unity binary extractor is not yet in the gateway allowlist; adding it later requires a separately configured generated-output root and a dedicated `write_generated` permission path. Do not expose a generic `shell`, `exec`, `run_command`, or unrestricted file-write tool.
 
 ## Validation requirements
 
