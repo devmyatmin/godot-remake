@@ -30,7 +30,7 @@ Optional tuning flags: `--context 4096 --threads 6 --tokens 384 --timeout 180`.
 4. The gateway independently validates paths and arguments.
 5. The adapter prints the structured gateway response.
 
-Qwen output is never passed to a shell, Python evaluator, or arbitrary process. The only subprocess launched is the fixed `llama-cli` executable with an argument list (no shell). The current gateway exposes only `inspect_project`, `inspect_asset`, and `search_assets`; it does not read file contents or modify files.
+Qwen output is never passed to a shell, Python evaluator, or arbitrary process. The only subprocess launched is the fixed `llama-cli` executable with an argument list (no shell). The current gateway exposes `inspect_project`, `inspect_unity_project`, `inspect_asset`, and `search_assets`; it does not read file contents or modify files.
 
 This is a first integration step, not a full autonomous agent. It currently performs one tool request per run and returns structured results; multi-step planning, content-aware Unity parsers, conversion, and approved write/build tools are later milestones. Keep the workspace limited to files Qwen is allowed to inspect.
 
