@@ -39,4 +39,4 @@ Accept and inspect as much Unity project information as practical, even when com
 
 Original Unity files remain read-only. Converted output belongs in a separate generated-output directory. Unity assemblies, MonoBehaviours, and native plugins are not assumed to run unchanged.
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) and [ROADMAP.md](ROADMAP.md).
+See [ARCHITECTURE.md](ARCHITECTURE.md), [ROADMAP.md](ROADMAP.md), [Unity compatibility tools](unity_compat/README.md), and the [Stranded Deep target profile](targets/stranded_deep/README.md).
