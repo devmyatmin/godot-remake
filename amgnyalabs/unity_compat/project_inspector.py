@@ -124,10 +124,10 @@ def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str
                                     "source": file_path.relative_to(root).as_posix(),
                                     "file_id": int(file_id.decode("ascii")),
                                     "guid": guid_text,
-                                    "resolved_asset": guid_to_asset.get(guid_text) if guid_text else None,
+                                    "resolved_asset": None,
                                     "resolution": (
-                                        "resolved" if guid_text in guid_to_asset else
-                                        "unresolved_external_or_not_yet_indexed" if guid_text else
+                                        "pending" if guid_text else
+                                        "unresolved_external_or_not_found" if guid_text else
                                         "local_file_id_reference"
                                     ),
                                 })
@@ -148,6 +148,13 @@ def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str
                     continue
             if truncated:
                 break
+
+    for reference in yaml_references:
+        guid_text = reference["guid"]
+        if guid_text:
+            resolved = guid_to_asset.get(guid_text)
+            reference["resolved_asset"] = resolved
+            reference["resolution"] = "resolved" if resolved else "unresolved_external_or_not_found"
 
     duplicate_guids = sorted(guid for guid, count in duplicate_guid_counts.items() if count > 1)
     return {
