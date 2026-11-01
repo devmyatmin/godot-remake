@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Constrained local Qwen CLI adapter for the read-only AmgNya gateway.
 
-The model can request only the gateway's three read-only tools. Model output is
+The model can request only the gateway's allowlisted read-only tools. Model output is
 never interpreted as a shell command or executable code.
 """
 from __future__ import annotations
