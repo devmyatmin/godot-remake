@@ -34,7 +34,13 @@ class GatewayTests(unittest.TestCase):
             '{"dependencies":{"com.unity.test-framework":"1.1.33"}}', encoding="utf-8"
         )
         (unity / "Assets" / "Sample.prefab").write_text(
-            "%YAML 1.1\n--- !u!1 &100\nGameObject:\n", encoding="utf-8"
+            "%YAML 1.1\n--- !u!1 &100\nGameObject:\n  m_External: {fileID: 2100000, guid: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, type: 2}\n",
+            encoding="utf-8",
+        )
+        (unity / "Assets" / "Texture.png").write_bytes(b"png")
+        (unity / "Assets" / "Texture.png.meta").write_text(
+            "fileFormatVersion: 2\nguid: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+            encoding="utf-8",
         )
         (unity / "Assets" / "Sample.prefab.meta").write_text(
             "fileFormatVersion: 2\nguid: 0123456789abcdef0123456789abcdef\n",
@@ -54,9 +60,21 @@ class GatewayTests(unittest.TestCase):
         self.assertTrue(result["is_unity_project"])
         self.assertEqual(result["unity_editor_version"], "2022.3.10f1")
         self.assertEqual(result["package_dependency_count"], 1)
-        self.assertEqual(result["unique_meta_guid_count"], 1)
+        self.assertEqual(result["unique_meta_guid_count"], 2)
         self.assertEqual(result["yaml_object_class_id_counts"]["1"], 1)
-        self.assertEqual(result["support_level"], "partial_metadata_inspection")
+        self.assertEqual(
+            result["guid_to_asset"]["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+            "Assets/Texture.png",
+        )
+        self.assertEqual(result["yaml_references"][0]["resolution"], "resolved")
+        self.assertEqual(
+            result["yaml_references"][0]["resolved_asset"], "Assets/Texture.png"
+        )
+        self.assertEqual(
+            result["support_matrix"]["text_yaml_object_ids_and_pptr_references"],
+            "partial",
+        )
+        self.assertEqual(result["support_level"], "partial_metadata_and_reference_inspection")
 
     def test_inspect_asset_returns_metadata_only(self):
         response = self.gateway.handle(request("inspect_asset", {"path": "Assets/tree.png"}))
