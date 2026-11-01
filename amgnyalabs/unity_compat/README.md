@@ -6,7 +6,7 @@
 
 ## Initial binary extraction
 
-`unity_binary_importer.py` uses the pinned UnityPy dependency to process one serialized Unity file or AssetBundle at a time. It independently attempts to export Texture2D/Sprite as PNG, Mesh as OBJ, AudioClip samples as WAV, Font data, and TextAsset payloads. Other object types are retained in the report as metadata-only; per-object errors are recorded while other objects continue.
+`unity_binary_importer.py` uses the pinned UnityPy dependency to process one serialized Unity file or AssetBundle at a time. It independently attempts to export Texture2D/Sprite as PNG, Mesh as OBJ, AudioClip samples as WAV, Font data, TextAsset payloads, and MonoBehaviour typetrees when the serialized type information is available. Other object types are retained in the report as metadata-only; per-object errors are recorded while other objects continue.
 
 Install the pinned dependency:
 
@@ -24,4 +24,4 @@ python amgnyalabs/unity_compat/unity_binary_importer.py \
 
 Use a fresh output directory for each run. The importer refuses to place output inside the original source directory and opens exported files with exclusive-create semantics rather than overwriting existing outputs. Keep related `.resS`/`.resource` sidecars beside the source file so UnityPy can resolve external payloads where supported.
 
-This is a first extraction stage, not a complete Unity-to-Godot converter. It does not yet convert Materials/Shaders, rebuild Prefabs/Scenes, translate MonoBehaviours, or prove gameplay equivalence. Real Stranded Deep binary files must be used as acceptance fixtures before claiming game-specific compatibility.
+This is a first extraction stage, not a complete Unity-to-Godot converter. It does not yet convert Materials/Shaders, rebuild Prefabs/Scenes, generate missing MonoBehaviour typetrees from Stranded Deep assemblies, or prove gameplay equivalence. Real Stranded Deep binary files must be used as acceptance fixtures before claiming game-specific compatibility.
