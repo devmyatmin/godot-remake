@@ -1,6 +1,6 @@
-# AmgNya Engine Layer
+# AmgNya Hybrid Engine Layer
 
-This directory contains the project-specific layer built on top of the Godot Engine source tree. The upstream Godot engine remains the runtime foundation; this project adds a best-effort Unity-oriented import workflow, Vulkan-only Android target, and constrained automation interface.
+This project combines **Godot as the main engine** with a **Unity compatibility/import layer**. Godot remains the runtime and rendering foundation; Unity project structures, data, assets, scenes, prefabs, references, and supported behaviors are inspected and progressively mapped or converted into Godot-usable resources. This is not a Unity runtime reimplementation. Partial extraction is valuable and must be retained/reported when full conversion is not possible.
 
 ## Baseline
 
@@ -29,7 +29,7 @@ The upstream engine source is not being wholesale rewritten. Project-specific co
 - Do not silently fall back to OpenGL/Compatibility rendering when Vulkan is unavailable; report the device as unsupported instead.
 - Build/export validation must reject non-Vulkan configurations.
 
-## Unity compatibility: best effort, preserve partial results
+## Unity compatibility integration: best effort, preserve partial results
 
 Accept and inspect as much Unity project information as practical, even when complete conversion is impossible. Start with project structure, Packages, ProjectSettings, .meta GUIDs, text YAML, common resources, scenes/prefabs, and then supported binary serialized assets/bundles. Convert only features with tested mappings. Keep extracted metadata and successfully decoded resources when another part fails, and report unsupported fields clearly.
 
