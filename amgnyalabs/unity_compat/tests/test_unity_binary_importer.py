@@ -57,7 +57,7 @@ class UnityBinaryImporterTests(unittest.TestCase):
         objects = [
             FakeObject(1, "Texture2D", "Ocean", FakeParsed(m_Name="Ocean", image=FakeImage())),
             FakeObject(2, "Mesh", "Island", FakeParsed(m_Name="Island", export=lambda: "o Island\nv 0 0 0\n")),
-            FakeObject(3, "AudioClip", "Wave", FakeParsed(samples={"Wave": b"RIFFDATA"})),
+            FakeObject(3, "AudioClip", "Wave", FakeParsed(m_Name="Wave", samples={"Wave": b"RIFFDATA"})),
             FakeObject(4, "Material", "Water", FakeParsed(m_Name="Water")),
             FakeObject(5, "Texture2D", "Broken", error=ValueError("bad texture")),
         ]
