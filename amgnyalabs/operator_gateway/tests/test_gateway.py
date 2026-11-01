@@ -28,16 +28,16 @@ class GatewayTests(unittest.TestCase):
         (unity / "Packages").mkdir()
         (unity / "ProjectSettings").mkdir()
         (unity / "ProjectSettings" / "ProjectVersion.txt").write_text(
-            "m_EditorVersion: 2022.3.10f1\\n", encoding="utf-8"
+            "m_EditorVersion: 2022.3.10f1\n", encoding="utf-8"
         )
         (unity / "Packages" / "manifest.json").write_text(
             '{"dependencies":{"com.unity.test-framework":"1.1.33"}}', encoding="utf-8"
         )
         (unity / "Assets" / "Sample.prefab").write_text(
-            "%YAML 1.1\\n--- !u!1 &100\\nGameObject:\\n", encoding="utf-8"
+            "%YAML 1.1\n--- !u!1 &100\nGameObject:\n", encoding="utf-8"
         )
         (unity / "Assets" / "Sample.prefab.meta").write_text(
-            "fileFormatVersion: 2\\nguid: 0123456789abcdef0123456789abcdef\\n",
+            "fileFormatVersion: 2\nguid: 0123456789abcdef0123456789abcdef\n",
             encoding="utf-8",
         )
         self.gateway = ReadOnlyGateway(self.root)
