@@ -16,11 +16,13 @@
 - [x] Add a small adapter test suite; malformed model output must never become a shell command.
 - [ ] Add resumable task records without granting unrestricted access.
 
-## Phase 2 — Unity project discovery and compatibility
+## Phase 2 — Unity compatibility integration into the Godot main engine
 - [x] Build a Unity project detector for Assets, Packages, ProjectSettings, and ProjectVersion.
-- [ ] Parse .meta GUIDs and text-serialized Unity YAML.
-- [ ] Create a Unity-to-Godot support matrix and extraction manifest.
+- [x] Inventory .meta GUIDs and extract bounded text-YAML object IDs / PPtr references (partial parser; not full YAML conversion).
+- [x] Expose an initial per-feature Unity compatibility support matrix.
+- [ ] Create a persistent Unity-to-Godot extraction manifest with incremental re-import support.
 - [x] Add metadata-only inspection for serialized assets and bundles before conversion.
+- [ ] Resolve GUID references across complete project scans and persist source-to-Godot resource mappings.
 - [ ] Add texture and audio conversion fixtures.
 - [ ] Add mesh, material, shader, animation, and font importers incrementally.
 - [ ] Map supported GameObject/Transform/Component hierarchies, Scenes, and Prefabs.
