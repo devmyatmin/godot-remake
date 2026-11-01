@@ -93,6 +93,8 @@ def _export_object(obj: Any, object_type: str, destination: Path) -> tuple[list[
         if text_data is None:
             raise ValueError("TextAsset has no m_Script payload")
         path = destination / f"{base}.txt"
+        if isinstance(text_data, str):
+            text_data = text_data.encode("utf-8", "surrogateescape")
         size = _write_bytes(path, text_data)
         return [path.as_posix()], size, "exported_text"
 
