@@ -17,7 +17,7 @@ python -m pip install -r amgnyalabs/unity_compat/requirements.txt
 Run against one copied Unity data file, directing output outside the original source directory:
 
 ```sh
-python amgnyals/unity_compat/unity_binary_importer.py \
+python amgnyalabs/unity_compat/unity_binary_importer.py \
   --source /absolute/path/to/StrandedDeep_Data/sharedassets0.assets \
   --output /absolute/path/to/generated/strandeddeep/sharedassets0
 ```
