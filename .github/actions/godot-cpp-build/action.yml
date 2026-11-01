@@ -34,11 +34,16 @@ runs:
       run: ${{ inputs.bin }} --headless --dump-gdextension-interface --dump-extension-api
 
     - name: Prepare archive argument chunker
+      if: runner.os == 'Linux'
       shell: sh
-      run: chmod +x "${{ github.action_path }}/ar_chunker.py"
+      run: |
+        mkdir -p "$RUNNER_TEMP/amgnyalabs-ar"
+        cp "${{ github.action_path }}/ar_chunker.py" "$RUNNER_TEMP/amgnyalabs-ar/ar"
+        chmod +x "$RUNNER_TEMP/amgnyalabs-ar/ar"
+        echo "$RUNNER_TEMP/amgnyalabs-ar" >> "$GITHUB_PATH"
 
     - name: SCons Build
       shell: sh
       env:
         SCONS_CACHE: ${{ inputs.scons-cache }}
-      run: scons --directory=./godot-cpp/test "gdextension_dir=${{ github.workspace }}" "AR=${{ github.action_path }}/ar_chunker.py" ${{ inputs.scons-flags }}
+      run: scons --directory=./godot-cpp/test "gdextension_dir=${{ github.workspace }}" ${{ inputs.scons-flags }}
