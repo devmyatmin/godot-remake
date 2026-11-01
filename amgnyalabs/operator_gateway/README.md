@@ -11,15 +11,15 @@ A minimal Python standard-library gateway for local Qwen integration. It accepts
 
 From the repository root:
 
-\`\`\`sh
+```sh
 python amgnyalabs/operator_gateway/gateway.py --workspace /absolute/path/to/project
-\`\`\`
+```
 
 Then send a request on stdin:
 
-\`\`\`json
+```json
 {"protocol":"amgnyalabs.operator.v0","request_id":"demo-001","tool":"inspect_project","arguments":{"path":".","max_entries":100},"permission":"read"}
-\`\`\`
+```
 
 The gateway currently supports only:
 - \`inspect_project\`: bounded directory inventory and extension counts.
@@ -41,8 +41,8 @@ This is an initial local prototype, not a complete sandbox. Run it under an OS a
 
 From this directory:
 
-\`\`\`sh
+```sh
 python -m unittest discover -s tests -v
-\`\`\`
+```
 
 The gateway is intentionally metadata-only. Real Unity/Godot asset parsing and conversion will be separate tools added only after the read-only boundary is validated.
