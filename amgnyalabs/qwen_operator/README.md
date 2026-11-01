@@ -14,7 +14,7 @@ This adapter connects a local `llama-cli` process to the read-only gateway. It d
 From the repository root:
 
 ```sh
-python amgnyalabs/qwen_operator/operator.py \
+python amgnyalabs/qwen_operator/qwen_adapter.py \
   --workspace /absolute/path/to/project \
   --model "$HOME/storage/shared/Download/aimodel/Qwen2.5-Coder-7B-Instruct-abliterated-Q4_K_M.gguf" \
   "List the Unity project structure and identify its Packages and ProjectSettings folders."
