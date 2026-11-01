@@ -1,5 +1,7 @@
 # Roadmap
 
+**Primary target: Stranded Deep.** Use the recorded Stranded Deep inventory and source evidence as the acceptance baseline. Generic Unity fixtures remain useful for parser tests, but importer priorities and end-to-end validation must demonstrate real Stranded Deep data flowing into Godot. See [the target profile](targets/stranded_deep/README.md).
+
 ## Phase 0 — Baseline and boundaries
 - [x] Create isolated development branch `amgnyalabs/bootstrap`.
 - [x] Record baseline commit and engine version.
@@ -20,12 +22,12 @@
 - [x] Build a Unity project detector for Assets, Packages, ProjectSettings, and ProjectVersion.
 - [x] Inventory .meta GUIDs and extract bounded text-YAML object IDs / PPtr references (partial parser; not full YAML conversion).
 - [x] Expose an initial per-feature Unity compatibility support matrix.
-- [ ] Create a persistent Unity-to-Godot extraction manifest with incremental re-import support.
+- [ ] Create a persistent Stranded Deep Unity-to-Godot extraction manifest with incremental re-import support.
 - [x] Add metadata-only inspection for serialized assets and bundles before conversion.
 - [ ] Resolve GUID references across complete project scans and persist source-to-Godot resource mappings.
-- [ ] Add texture and audio conversion fixtures.
+- [ ] Add texture and audio conversion fixtures, beginning with representative Stranded Deep PNG/audio resources.
 - [ ] Add mesh, material, shader, animation, and font importers incrementally.
-- [ ] Map supported GameObject/Transform/Component hierarchies, Scenes, and Prefabs.
+- [ ] Map supported Stranded Deep GameObject/Transform/Component hierarchies, Scenes, and Prefabs.
 - [ ] Add limited, tested Unity C# API translation; retain unsupported scripts and assemblies unchanged.
 - [ ] Preserve partial extraction results and report unsupported fields/references.
 - [ ] Keep original Unity data read-only; all converted files go to generated output.
