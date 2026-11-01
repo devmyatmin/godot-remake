@@ -103,20 +103,24 @@ def _export_object(obj: Any, object_type: str, destination: Path) -> tuple[list[
 
 def import_unity_file(source_file: Path, output_root: Path, max_objects: int = 3000) -> dict[str, Any]:
     """Extract supported objects from one Unity serialized file/bundle without modifying it."""
-    source = source_file.expanduser().resolve(strict=True)
-    if not source.is_file() or source.is_symlink():
-        raise ValueError("source must be an existing regular file, not a symlink")
+    requested_source = source_file.expanduser()
+    if requested_source.is_symlink():
+        raise ValueError("source must not be a symlink")
+    source = requested_source.resolve(strict=True)
+    if not source.is_file():
+        raise ValueError("source must be an existing regular file")
     if not isinstance(max_objects, int) or isinstance(max_objects, bool) or not 1 <= max_objects <= MAX_OBJECTS:
         raise ValueError(f"max_objects must be between 1 and {MAX_OBJECTS}")
 
-    output = output_root.expanduser().resolve()
+    requested_output = output_root.expanduser()
+    if requested_output.is_symlink():
+        raise ValueError("generated output root cannot be a symlink")
+    output = requested_output.resolve()
     if output == source.parent or source.parent in output.parents:
         raise ValueError("generated output must be outside the original source directory")
     if output == source or output in source.parents:
         raise ValueError("generated output cannot contain or replace the source")
     output.mkdir(parents=True, exist_ok=True)
-    if output.is_symlink():
-        raise ValueError("generated output root cannot be a symlink")
 
     try:
         import UnityPy  # type: ignore
