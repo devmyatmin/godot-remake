@@ -1,6 +1,6 @@
 # AmgNya Engine Layer
 
-This directory contains the project-specific layer built on top of the Godot Engine source tree. The upstream Godot engine remains the runtime and rendering foundation; this project adds a Unity-oriented workflow and automation interface in separate, reviewable steps.
+This directory contains the project-specific layer built on top of the Godot Engine source tree. The upstream Godot engine remains the runtime foundation; this project adds a best-effort Unity-oriented import workflow, Vulkan-only Android target, and constrained automation interface.
 
 ## Baseline
 
@@ -21,21 +21,18 @@ The upstream engine source is not being wholesale rewritten. Project-specific co
 4. Connect the local Qwen model as an operator through a constrained tool interface.
 5. Use the Godot Android app/APK for visual preview and play-testing, not as the primary project authoring interface.
 
-## Design boundaries
+## Hard graphics requirement: Vulkan only
 
-- Godot remains the engine/runtime; this is not a from-scratch Unity replacement.
-- Unity assets and APIs require explicit import/conversion or compatibility work. Unity assemblies and MonoBehaviours are not assumed to run unchanged.
-- Qwen proposes and coordinates actions; deterministic tools perform file operations, conversions, builds, and tests.
-- Tool permissions must distinguish read-only inspection from writes/builds. No source-game files are modified without explicit authorization.
-- The ML-Agents fork is kept separate. It is an optional future game-behavior training component, not the Qwen operator or engine core.
+- The Android APK must use the Godot Mobile renderer with Vulkan.
+- Vulkan is the only supported graphics backend for this project.
+- Do not add DirectX 11 rendering, DirectX 11 export, DX11 dependencies, or DX11 fallback.
+- Do not silently fall back to OpenGL/Compatibility rendering when Vulkan is unavailable; report the device as unsupported instead.
+- Build/export validation must reject non-Vulkan configurations.
 
-## Initial milestones
+## Unity compatibility: best effort, preserve partial results
 
-- [x] Establish a project branch without changing the upstream `master` branch.
-- [ ] Define the engine/operator architecture and permission model.
-- [ ] Add a minimal headless project-tool interface.
-- [ ] Add reproducible Android build automation after validating SDK/NDK/JDK versions.
-- [ ] Add Termux installation and Qwen operator integration.
-- [ ] Validate with a small sample project before importing a full game.
+Accept and inspect as much Unity project information as practical, even when complete conversion is impossible. Start with project structure, Packages, ProjectSettings, .meta GUIDs, text YAML, common resources, scenes/prefabs, and then supported binary serialized assets/bundles. Convert only features with tested mappings. Keep extracted metadata and successfully decoded resources when another part fails, and report unsupported fields clearly.
+
+Original Unity files remain read-only. Converted output belongs in a separate generated-output directory. Unity assemblies, MonoBehaviours, and native plugins are not assumed to run unchanged.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) and [ROADMAP.md](ROADMAP.md).
