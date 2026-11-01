@@ -6,6 +6,7 @@ one unsupported or malformed object must not discard other successfully exported
 from __future__ import annotations
 
 import argparse
+import base64
 import io
 import json
 import re
@@ -44,6 +45,20 @@ def _write_bytes(path: Path, payload: Any) -> int:
         handle.write(payload)
     return size
 
+
+
+def _json_safe(value: Any, depth: int = 0) -> Any:
+    if depth > 64:
+        return {"$truncated": "maximum nesting depth"}
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, (bytes, bytearray, memoryview)):
+        return {"$encoding": "base64", "data": base64.b64encode(bytes(value)).decode("ascii")}
+    if isinstance(value, dict):
+        return {str(key): _json_safe(item, depth + 1) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(item, depth + 1) for item in value]
+    return {"$unsupported_type": type(value).__name__, "repr": repr(value)[:500]}
 
 def _export_object(obj: Any, object_type: str, destination: Path) -> tuple[list[str], int, str]:
     parsed = obj.parse_as_object()
@@ -87,6 +102,13 @@ def _export_object(obj: Any, object_type: str, destination: Path) -> tuple[list[
         path = destination / f"{base}{extension}"
         size = _write_bytes(path, font_data)
         return [path.as_posix()], size, "exported_font"
+
+    if object_type == "MonoBehaviour":
+        tree = obj.parse_as_dict()
+        payload = json.dumps(_json_safe(tree), ensure_ascii=False, indent=2)
+        path = destination / f"{base}.json"
+        size = _write_bytes(path, payload)
+        return [path.as_posix()], size, "exported_typetree_json"
 
     if object_type == "TextAsset":
         text_data = getattr(parsed, "m_Script", None)
