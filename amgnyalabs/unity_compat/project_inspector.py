@@ -12,10 +12,10 @@ MAX_FILES = 5000
 MAX_TEXT_BYTES = 128 * 1024
 MAX_BINARY_LIST = 100
 MAX_EXTRACTED_REFERENCES = 1000
-GUID_RE = re.compile(rb"(?m)^guid:\\s*([0-9a-fA-F]{32})\\s*$")
-YAML_OBJECT_RE = re.compile(rb"(?m)^--- !u!(\\d+) &(-?\\d+)")
+GUID_RE = re.compile(rb"(?m)^guid:\s*([0-9a-fA-F]{32})\s*$")
+YAML_OBJECT_RE = re.compile(rb"(?m)^--- !u!(\d+) &(-?\d+)")
 YAML_PPTR_RE = re.compile(
-    rb"\\{fileID:\\s*(-?\\d+)(?:,\\s*guid:\\s*([0-9a-fA-F]{32}))?(?:,\\s*type:\\s*\\d+)?\\}"
+    rb"\{fileID:\s*(-?\d+)(?:,\s*guid:\s*([0-9a-fA-F]{32}))?(?:,\s*type:\s*\d+)?\}"
 )
 UNITY_BINARY_EXTENSIONS = {".assets", ".bundle", ".unity3d", ".ress", ".resource", ".resS"}
 
@@ -45,7 +45,7 @@ def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str
     version = None
     version_file = root / "ProjectSettings" / "ProjectVersion.txt"
     if version_file.is_file() and not version_file.is_symlink():
-        match = re.search(r"(?m)^m_EditorVersion:\\s*(.+?)\\s*$", _read_limited(version_file).decode("utf-8", "replace"))
+        match = re.search(r"(?m)^m_EditorVersion:\s*(.+?)\s*$", _read_limited(version_file).decode("utf-8", "replace"))
         if match:
             version = match.group(1)
 
@@ -126,9 +126,7 @@ def inspect_unity_project(project_root: Path, max_files: int = 3000) -> dict[str
                                     "guid": guid_text,
                                     "resolved_asset": None,
                                     "resolution": (
-                                        "pending" if guid_text else
-                                        "unresolved_external_or_not_found" if guid_text else
-                                        "local_file_id_reference"
+                                        "pending" if guid_text else "local_file_id_reference"
                                     ),
                                 })
                             text_files_sampled += 1
