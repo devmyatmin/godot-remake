@@ -1,6 +1,13 @@
+import sys
 import unittest
+from pathlib import Path
 
-from operator import AdapterError, extract_json_object, validate_request
+ROOT = Path(__file__).resolve().parents[1]
+GATEWAY_DIR = ROOT.parent / "operator_gateway"
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(GATEWAY_DIR))
+
+from qwen_adapter import AdapterError, extract_json_object, validate_request
 from gateway import PROTOCOL
 
 
