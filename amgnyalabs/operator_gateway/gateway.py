@@ -11,6 +11,8 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from unity_compat.project_inspector import inspect_unity_project
+
 PROTOCOL = "amgnyalabs.operator.v0"
 MAX_ENTRIES = 5000
 MAX_SEARCH_RESULTS = 500
@@ -138,6 +140,21 @@ class ReadOnlyGateway:
             "entries": entries,
         }
 
+    def inspect_unity_project(self, args: dict[str, Any]) -> dict[str, Any]:
+        allowed = {"path", "max_files"}
+        if set(args) - allowed:
+            raise GatewayError("unknown_argument", "inspect_unity_project received unknown arguments")
+        start = self._resolve(args.get("path", "."))
+        if not start.is_dir():
+            raise GatewayError("not_a_directory", "Unity project path must identify a directory")
+        limit = args.get("max_files", 3000)
+        try:
+            return inspect_unity_project(start, limit)
+        except ValueError as exc:
+            raise GatewayError("invalid_argument", str(exc)) from None
+        except OSError:
+            raise GatewayError("inspection_error", "Unity project inspection failed") from None
+
     def inspect_asset(self, args: dict[str, Any]) -> dict[str, Any]:
         if set(args) != {"path"}:
             raise GatewayError("invalid_argument", "inspect_asset requires only 'path'")
@@ -230,6 +247,7 @@ class ReadOnlyGateway:
                 raise GatewayError("invalid_argument", "arguments must be an object")
             tools = {
                 "inspect_project": self.inspect_project,
+                "inspect_unity_project": self.inspect_unity_project,
                 "inspect_asset": self.inspect_asset,
                 "search_assets": self.search_assets,
             }
