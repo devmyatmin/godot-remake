@@ -33,8 +33,13 @@ runs:
       shell: sh
       run: ${{ inputs.bin }} --headless --dump-gdextension-interface --dump-extension-api
 
+    - name: Prepare archive argument chunker
+      shell: sh
+      run: chmod +x "${{ github.action_path }}/ar_chunker.py"
+
     - name: SCons Build
       shell: sh
       env:
         SCONS_CACHE: ${{ inputs.scons-cache }}
+        AR: ${{ github.action_path }}/ar_chunker.py
       run: scons --directory=./godot-cpp/test "gdextension_dir=${{ github.workspace }}" ${{ inputs.scons-flags }}
