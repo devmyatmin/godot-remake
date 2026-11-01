@@ -12,7 +12,10 @@ from unity_binary_importer import import_unity_file
 
 class FakeImage:
     def save(self, path, format=None):
-        Path(path).write_bytes(b"PNGDATA")
+        if hasattr(path, "write"):
+            path.write(b"PNGDATA")
+        else:
+            Path(path).write_bytes(b"PNGDATA")
 
 
 class FakeParsed:
