@@ -12,15 +12,15 @@
 - [x] Define a versioned JSON request/response schema.
 - [x] Implement a local read-only gateway with an allowlist of named tools.
 - [x] Add tests for path traversal, symlinks, permission denial, and bounded inspection.
-- [ ] Connect the local Qwen CLI through a constrained adapter.
-- [ ] Add a small adapter test suite; malformed model output must never become a shell command.
+- [x] Connect the local Qwen CLI through a constrained adapter.
+- [x] Add a small adapter test suite; malformed model output must never become a shell command.
 - [ ] Add resumable task records without granting unrestricted access.
 
 ## Phase 2 — Unity project discovery and compatibility
-- [ ] Build a Unity project detector for Assets, Packages, ProjectSettings, and ProjectVersion.
+- [x] Build a Unity project detector for Assets, Packages, ProjectSettings, and ProjectVersion.
 - [ ] Parse .meta GUIDs and text-serialized Unity YAML.
 - [ ] Create a Unity-to-Godot support matrix and extraction manifest.
-- [ ] Add metadata-only inspection for serialized assets and bundles before conversion.
+- [x] Add metadata-only inspection for serialized assets and bundles before conversion.
 - [ ] Add texture and audio conversion fixtures.
 - [ ] Add mesh, material, shader, animation, and font importers incrementally.
 - [ ] Map supported GameObject/Transform/Component hierarchies, Scenes, and Prefabs.
