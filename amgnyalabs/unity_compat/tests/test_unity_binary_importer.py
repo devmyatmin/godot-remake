@@ -24,12 +24,18 @@ class FakeParsed:
 
 
 class FakeObject:
-    def __init__(self, path_id, type_name, name, parsed=None, error=None):
+    def __init__(self, path_id, type_name, name, parsed=None, error=None, tree=None):
         self.path_id = path_id
         self.type = types.SimpleNamespace(name=type_name)
         self._name = name
         self._parsed = parsed
         self._error = error
+        self._tree = tree
+
+    def parse_as_dict(self):
+        if self._error:
+            raise self._error
+        return self._tree
 
     def peek_name(self):
         return self._name
@@ -59,18 +65,22 @@ class UnityBinaryImporterTests(unittest.TestCase):
             FakeObject(2, "Mesh", "Island", FakeParsed(m_Name="Island", export=lambda: "o Island\nv 0 0 0\n")),
             FakeObject(3, "AudioClip", "Wave", FakeParsed(m_Name="Wave", samples={"Wave": b"RIFFDATA"})),
             FakeObject(4, "Material", "Water", FakeParsed(m_Name="Water")),
-            FakeObject(5, "Texture2D", "Broken", error=ValueError("bad texture")),
+            FakeObject(5, "MonoBehaviour", "PlayerController", tree={"m_Name": "PlayerController", "speed": 4.5}),
+            FakeObject(6, "Texture2D", "Broken", error=ValueError("bad texture")),
         ]
         fake_unitypy = types.SimpleNamespace(load=lambda path: types.SimpleNamespace(objects=objects))
         with patch.dict(sys.modules, {"UnityPy": fake_unitypy}):
             report = import_unity_file(self.source, self.output)
 
-        self.assertEqual(report["exported_objects"], 3)
+        self.assertEqual(report["exported_objects"], 4)
         self.assertEqual(report["metadata_only_objects"], 1)
         self.assertEqual(report["failed_objects"], 1)
         self.assertTrue((self.output / "sharedassets0.assets" / "1_Ocean.png").is_file())
         self.assertTrue((self.output / "sharedassets0.assets" / "2_Island.obj").is_file())
         self.assertTrue((self.output / "sharedassets0.assets" / "3_Wave_Wave.wav").is_file())
+        mono_json = self.output / "sharedassets0.assets" / "5_PlayerController.json"
+        self.assertTrue(mono_json.is_file())
+        self.assertEqual(json.loads(mono_json.read_text())["speed"], 4.5)
         self.assertEqual(self.source.read_bytes(), b"original-unity-data")
         saved_report = json.loads(
             (self.output / "sharedassets0.assets" / "import_report.json").read_text()
