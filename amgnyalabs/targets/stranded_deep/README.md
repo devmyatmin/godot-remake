@@ -20,14 +20,14 @@ These are baseline inventory observations from the prior scan, not proof that al
 
 ## Known gameplay and project areas from prior source review
 
-The earlier source review identified scene/tag areas including BOOT, MAIN_MENU, INTRO, LOAD, MAP_EDITOR, WATER, TERRAIN, PLAYER, ANIMAL, SHARK, and RAFT. Unity utility/dependency code (including LeanAudio, MEC, and tweening-related code) must be separated from game-specific behavior during compatibility work.
+The earlier source review identified scene/tag areas including BOOT, MAIN_MENU, INTRO, LOAD, MAP_EDITOR, WATER, TERRAIN, PLAYER, ANIMAL, SHARK, and RAFT. Unity utility/dependency code (including LeanAudio, MEC, and tweening-related code) must be separated from game-specific behavior during compatibility work. The recorded five DLL files are important evidence for later assembly-backed MonoBehaviour typetree generation; no assembly-backed decode has been validated yet.
 
 These names are discovery clues, not a claim that their full behavior has already been ported.
 
 ## Import priorities
 
 1. Build a persistent source inventory and Unity GUID/reference map for Stranded Deep.
-2. Decode and retain independently readable Unity serialized objects and resource sidecars; unsupported objects must not discard successful extractions.
+2. Decode and retain independently readable Unity serialized objects and resource sidecars; export available MonoBehaviour typetrees as JSON and use the managed DLLs to investigate missing typetrees. Unsupported objects must not discard successful extractions.
 3. Import textures and materials first, then meshes and prefab/scene hierarchy.
 4. Reconstruct high-value gameplay foundations in Godot: terrain, water, player, then related survival-world objects and systems as evidence permits.
 5. Map supported Unity components and script behavior explicitly; preserve unsupported DLLs/scripts as source evidence and report required rewrites.
