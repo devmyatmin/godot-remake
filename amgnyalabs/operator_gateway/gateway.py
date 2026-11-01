@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from unity_compat.project_inspector import inspect_unity_project
 
 PROTOCOL = "amgnyalabs.operator.v0"
