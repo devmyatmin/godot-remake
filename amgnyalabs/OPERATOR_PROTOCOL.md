@@ -51,9 +51,9 @@ The gateway, not Qwen, decides whether a permission is granted. A request cannot
 
 ## Initial allowlist
 
-Initially implement only:
+Initially expose only these read-only tools:
 - `inspect_project`
-- `inspect_unity_project`
+- `inspect_unity_project` (Unity markers, package dependencies, .meta GUID inventory, bounded YAML object IDs/PPtr references, binary-asset metadata, and a per-feature support matrix)
 - `inspect_asset`
 - `search_assets`
 
